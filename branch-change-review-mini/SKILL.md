@@ -1,6 +1,6 @@
 ---
 name: branch-change-review-mini
-description: 分析当前分支相对基准的完整变更，逐代码文件、逐实质改动位置说明改动目标和原因，供人工逐项判断合理性，并识别需求偏离、遗漏和过度设计。用于用户要求快速理解、审查或评估整个分支变更时。
+description: None
 ---
 
 # Branch Change Review

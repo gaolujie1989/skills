@@ -1,6 +1,6 @@
 ---
 name: branch-change-review
-description: 理解当前分支相对基准分支的完整变更，结合需求目标和 Plan，逐代码文件、逐实质改动位置解释改动目标和原因，供人工判断合理性、目标偏离、范围膨胀和过度设计。默认只读，不替代 Codex 原生 /review。
+description: Nono
 ---
 
 # 分支变更评审

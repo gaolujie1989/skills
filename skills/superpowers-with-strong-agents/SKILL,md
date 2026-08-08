@@ -1,0 +1,92 @@
+---
+
+name: superpowers-with-strong-agents
+description: Use when 使用 Superpowers 编写 implementation plan 或执行已确认的 implementation plan，且执行者是能力较强的 coding agent。
+----------------------------------------------------------------------------------------------------------------
+
+# 面向强 Coding Agent 调整 Superpowers
+
+## 目的
+
+保留 Superpowers 原有的 Spec → Plan → Execute → Review → Verify → Finish 流程，只覆盖：
+
+1. Implementation Plan 的任务粒度。
+2. 实现阶段采用的 TDD 策略。
+
+除此之外，不改变 Superpowers 的流程、Review、验证、Git 或执行器选择。
+
+## Writing Plan：保持详细，放大 Task
+
+使用 `superpowers:writing-plans`，但不要为了 2–5 分钟的执行粒度过度拆分。
+
+Task 应代表一个**语义完整、可验证、适合作为 commit 的实现增量**。强 Coding Agent 可以在一个 Task 内连续完成多个自然相关步骤。
+
+Plan 仍应明确：
+
+* 目标与约束
+* 涉及文件
+* 接口与依赖
+* 关键实现要求
+* 验证方式
+* commit 边界
+
+不要把以下动作仅因为 TDD 流程而拆成独立 Task：
+
+* 写 failing test
+* 验证 RED
+* 写最小实现
+* 验证 GREEN
+
+这些属于 Task 内部执行过程。
+
+时间仅作为粒度参考：通常允许一个 Task 包含约 5–15 分钟的连续工作；优先依据语义、依赖和验证边界拆分，而不是机械依据时间。
+
+### Test Seams
+
+Plan 应为需要 TDD 的 Task 明确关键 **Test Seams**：从哪些 public interface 验证哪些行为。
+
+只规划有价值的行为边界，不要求给每个内部函数或实现细节安排测试。
+
+用户确认整个 Plan，即视为同时确认其中列出的 Test Seams。
+
+## Execute：使用 Matt TDD
+
+无论后续选择：
+
+* `superpowers:executing-plans`
+* `superpowers:subagent-driven-development`
+
+都不改变执行器自身流程。
+
+实现 Task 时，TDD 策略使用 Matt 的 `mattpocock:tdd`，替代 `superpowers:test-driven-development`。
+
+**REQUIRED SUB-SKILL:** 使用 `mattpocock:tdd`。
+
+遵循其核心规则：
+
+* 测试 public behavior，而不是 implementation details。
+* 测试只放在已确认的 seam。
+* 使用 vertical slices：一个行为测试 → 最小实现 → 下一个行为。
+* RED 先于 GREEN。
+* 不为了覆盖率给 private helper、内部协作者或简单实现逐层重复测试。
+* refactor 留到 review 阶段，而不是扩大 RED → GREEN 循环。
+
+如果 Plan 已确认 Test Seams，不重复请求确认。
+
+只有实现过程中必须引入 Plan 未包含的新 seam 时，才需要先确认该 seam。
+
+## 边界
+
+本 Skill 不决定使用单 Agent 还是 Subagent SDD。
+
+本 Skill不替代：
+
+* brainstorming
+* writing-plans
+* executing-plans / subagent-driven-development
+* requesting-code-review
+* systematic-debugging
+* verification-before-completion
+* finishing-a-development-branch
+
+除上述 **Task 粒度** 与 **TDD 策略** 两项外，遵循原 Superpowers。

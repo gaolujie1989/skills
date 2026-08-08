@@ -1,6 +1,6 @@
 ---
 name: branch-change-review
-description: Nono
+description: Use when reviewing an implementation branch against its requirements and plan, and a human needs an evidence-based end-to-end explanation plus a complete per-file change ledger.
 ---
 
 # 分支变更评审

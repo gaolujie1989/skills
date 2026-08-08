@@ -1,7 +1,7 @@
 ---
 name: superpowers-with-strong-agents
 description: Use when 使用 Superpowers 编写 implementation plan 或执行已确认的 implementation plan，且执行者是能力较强的 coding agent。
-----------------------------------------------------------------------------------------------------------------
+---
 
 # 面向强 Coding Agent 调整 Superpowers
 

@@ -57,9 +57,9 @@ Plan 应为需要 TDD 的 Task 明确关键 **Test Seams**：从哪些 public in
 
 都不改变执行器自身流程。
 
-实现 Task 时，TDD 策略使用 Matt 的 `mattpocock:tdd`，替代 `superpowers:test-driven-development`。
+实现 Task 时，TDD 策略使用 Matt 的 `tdd`，替代 `superpowers:test-driven-development`。
 
-**REQUIRED SUB-SKILL:** 使用 `mattpocock:tdd`。
+**REQUIRED SUB-SKILL:** 使用 `tdd`。
 
 遵循其核心规则：
 

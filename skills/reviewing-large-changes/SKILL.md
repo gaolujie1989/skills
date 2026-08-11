@@ -1,8 +1,7 @@
 ---
-
 name: reviewing-large-changes
 description: Use when reviewing a large, AI-generated, or cross-module change where a flat diff is insufficient to understand intent, dependency order, symbol relationships, and architectural impact.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Reviewing Large Changes
 

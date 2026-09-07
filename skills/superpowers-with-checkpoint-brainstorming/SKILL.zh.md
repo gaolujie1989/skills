@@ -1,19 +1,15 @@
 ---
-name: superpowers-with-strong-agents
-description: 当使用 Superpowers 进行 brainstorming、编写 implementation plan，或由强 coding agent 执行已确认计划时使用。
+name: superpowers-with-checkpoint-brainstorming
+description: 当使用 Superpowers 进行 brainstorming，且常规选择、反复澄清或逐节审批打断设计工作时使用。
 ---
 
-# 面向强 Agent 调整 Superpowers
+# Superpowers 结合 Checkpoint Brainstorming
 
 ## 概述
 
-保留 Superpowers 的 Spec -> Plan -> Execute -> Review -> Verify -> Finish 纪律，只针对强 coding agent 调整三点：
+保留 Superpowers 的 Spec -> Plan -> Execute -> Review -> Verify -> Finish 纪律，只将 brainstorming 调整为自主决策与 checkpoint supervision。
 
-1. Brainstorming 使用自主决策与 checkpoint supervision。
-2. Implementation plan 使用更大的语义化 Task。
-3. 执行阶段使用 Matt 的 `tdd` 策略。
-
-目标不是取消人工监督，而是把人的注意力从常规实现选择转移到高价值、由用户拥有的决策。凡是本技能没有明确覆盖的内容，均遵循原 Superpowers skill。
+把人的注意力从常规实现选择转移到高价值、由用户拥有的决策。凡是本技能没有明确覆盖的内容，均遵循原 Superpowers skill。
 
 ## Brainstorming：优先使用 Checkpoint Supervision
 
@@ -74,57 +70,17 @@ description: 当使用 Superpowers 进行 brainstorming、编写 implementation 
 
 对于 bounded work，同样应用 `AUTO` / `ASSUME` / `ASK` 策略和批量澄清，但仍保留 `superpowers:brainstorming` 要求的简短 chat 内设计及批准 gate。
 
-## Writing Plans：保持内容详细，放大 Task
-
-**REQUIRED SUB-SKILL：** 使用 `superpowers:writing-plans`。
-
-不要机械拆成 2-5 分钟的动作。每个 Task 应是语义完整、可验证、适合作为一次 commit 的实现增量。强 coding agent 可以在一个 Task 内连续完成多个自然相关的步骤。
-
-Plan 仍需明确目标与约束、涉及文件、接口与依赖、关键实现要求、验证方式和 commit 边界。
-
-不要仅仅因为 TDD 而把以下过程拆成独立 Task：
-
-- 编写 failing test；
-- 验证 RED；
-- 编写最小实现；
-- 验证 GREEN。
-
-这些是同一个实现 Task 的内部步骤。5-15 分钟仅作为粗略尺度；语义、依赖、验证和 commit 边界优先于时间。
-
-### Test Seams
-
-对需要 TDD 的 Task，标出有价值的 test seams：通过哪些 public interface 验证哪些行为。不要为每个内部函数或实现细节规划测试。
-
-用户批准整个 plan，即视为同时批准其中列出的 test seams。
-
-## Execute：使用 Matt TDD
-
-无论执行选择 `superpowers:executing-plans` 还是 `superpowers:subagent-driven-development`，都保留该执行器自身的流程。
-
-**REQUIRED SUB-SKILL：** 使用 `tdd`，在实现 Task 中替代 `superpowers:test-driven-development`。
-
-在每个 Task 内：
-
-- 测试 public behavior，而不是 implementation details；
-- 只在已批准的 seam 上测试；
-- 使用 vertical slices：一个行为测试 -> 最小实现 -> 下一个行为；
-- RED 先于 GREEN；
-- 不要仅为覆盖率而重复测试 private helper、内部协作者或简单层；
-- 把更大范围的 refactor 留到 review，不要扩大 RED -> GREEN 循环。
-
-不要重复确认 plan 中已经批准的 test seams。如果实现必须引入已批准 plan 中没有的重要新 seam，应在添加前确认。
-
 ## 常见错误
 
 - 要求用户选择 Agent 已经明确推荐的选项。
 - 把每个缺失细节都当成 `ASK`，而不采用安全、可逆的假设。
 - 把多个相关业务问题拆到多个回合询问。
 - 因为取消了中间确认，就跳过最终 spec 批准。
-- 把 RED 与 GREEN 拆成独立 plan Task。
-- 替换执行器的 review 或 verification 流程，而不是只替换其 TDD 策略。
 
 ## 边界
 
-本技能不决定使用单 Agent 还是 subagent-driven development。它不替代 brainstorming、writing-plans、executing-plans / subagent-driven-development、requesting-code-review、systematic-debugging、verification-before-completion 或 finishing-a-development-branch。
+本技能调整 brainstorming 的决策策略、提问节奏和逐节批准行为。它保留范围分类、设计质量、书面 spec 要求，以及最终批准 gate。
 
-除上述三项 override 外，其余部分均遵循原 Superpowers。
+它不改变实现 Task 的粒度、TDD 策略、执行器选择、review、verification 或分支收尾流程。除上述 override 外，其余部分均遵循原 Superpowers。
+
+本技能可以独立使用，也可以与 `superpowers-with-matt-tdd` 配合使用。

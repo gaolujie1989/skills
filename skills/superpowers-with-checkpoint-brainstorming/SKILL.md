@@ -1,19 +1,15 @@
 ---
-name: superpowers-with-strong-agents
-description: Use when using Superpowers for brainstorming, writing implementation plans, or executing approved plans with a strong coding agent.
+name: superpowers-with-checkpoint-brainstorming
+description: Use when brainstorming with Superpowers and routine choices or repeated clarification and section approvals interrupt design work.
 ---
 
-# Adapting Superpowers for Strong Agents
+# Superpowers with Checkpoint Brainstorming
 
 ## Overview
 
-Preserve Superpowers' Spec -> Plan -> Execute -> Review -> Verify -> Finish discipline while adapting three points for strong coding agents:
+Preserve Superpowers' Spec -> Plan -> Execute -> Review -> Verify -> Finish discipline while adapting brainstorming to autonomous decisions and checkpoint supervision.
 
-1. Brainstorming uses autonomous decisions and checkpoint supervision.
-2. Implementation plans use larger semantic tasks.
-3. Execution uses Matt's `tdd` strategy.
-
-The goal is not to remove human oversight. Move human attention from routine implementation choices to high-value, user-owned decisions. Everything not explicitly overridden here follows the original Superpowers skill.
+Move human attention from routine implementation choices to high-value, user-owned decisions. Everything not explicitly overridden here follows the original Superpowers skill.
 
 ## Brainstorming: Prefer Checkpoint Supervision
 
@@ -74,57 +70,17 @@ Present the complete spec for one final user review before planning. Incorporate
 
 For bounded work, apply the same `AUTO` / `ASSUME` / `ASK` policy and batch clarification, but keep the short in-chat design and approval gate required by `superpowers:brainstorming`.
 
-## Writing Plans: Detailed Content, Larger Tasks
-
-**REQUIRED SUB-SKILL:** Use `superpowers:writing-plans`.
-
-Do not split work mechanically into 2-5 minute actions. Each task should be a semantically complete, verifiable implementation increment suitable for one commit. A strong coding agent may complete several naturally related steps inside one task.
-
-Plans still specify goals and constraints, affected files, interfaces and dependencies, key implementation requirements, verification, and commit boundaries.
-
-Do not create separate tasks merely for:
-
-- writing a failing test;
-- verifying RED;
-- writing the minimal implementation; or
-- verifying GREEN.
-
-Those are internal steps of one implementation task. Use 5-15 minutes only as a rough scale; semantic, dependency, verification, and commit boundaries take precedence over time.
-
-### Test Seams
-
-For tasks requiring TDD, identify the valuable test seams: which public interfaces verify which behaviors. Do not plan tests for every internal function or implementation detail.
-
-Approval of the full plan also approves its listed test seams.
-
-## Execution: Use Matt TDD
-
-Whether execution uses `superpowers:executing-plans` or `superpowers:subagent-driven-development`, preserve that executor's workflow.
-
-**REQUIRED SUB-SKILL:** Use `tdd`, replacing `superpowers:test-driven-development` for implementation tasks.
-
-Within each task:
-
-- test public behavior rather than implementation details;
-- test only at approved seams;
-- proceed in vertical slices: one behavior test -> minimal implementation -> next behavior;
-- observe RED before GREEN;
-- avoid duplicate tests for private helpers, internal collaborators, or trivial layers merely for coverage; and
-- leave broader refactoring to review rather than expanding the RED -> GREEN loop.
-
-Do not re-confirm test seams already approved in the plan. If implementation requires a material new seam not present in the approved plan, confirm that seam before adding it.
-
 ## Common Mistakes
 
 - Asking the user to choose the option the agent has already recommended.
 - Treating every missing detail as `ASK` instead of using a safe reversible assumption.
 - Asking several related business questions across separate turns.
 - Skipping the final spec approval because intermediate confirmations were removed.
-- Splitting RED and GREEN into separate plan tasks.
-- Replacing an executor's review or verification workflow rather than only its TDD strategy.
 
 ## Boundaries
 
-This skill does not choose between single-agent execution and subagent-driven development. It does not replace brainstorming, writing-plans, executing-plans / subagent-driven-development, requesting-code-review, systematic-debugging, verification-before-completion, or finishing-a-development-branch.
+This skill changes brainstorming's decision policy, question cadence, and per-section approval behavior. It preserves scope classification, design quality, written-spec requirements, and the final approval gate.
 
-Outside the three overrides above, follow Superpowers unchanged.
+It does not change implementation task granularity, TDD strategy, executor selection, review, verification, or branch completion. Outside the overrides above, follow Superpowers unchanged.
+
+This skill can be used independently or together with `superpowers-with-matt-tdd`.

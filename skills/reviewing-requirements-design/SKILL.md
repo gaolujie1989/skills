@@ -1,6 +1,6 @@
 ---
 name: reviewing-requirements-design
-description: Use when 需求和系统设计已基本完成，在开发前需要再次检查业务规则遗漏、冲突、歧义以及设计不完整或与需求不一致的问题。
+description: Use only when explicitly invoked by the human to review completed requirements and system design before development for omissions, conflicts, ambiguities, and inconsistencies.
 ---
 
 # 审查需求与设计

@@ -1,6 +1,6 @@
 ---
 name: branch-change-review-mini
-description: Use when reviewing a branch diff against requirements and a plan, and a concise per-file account of each substantive code change is needed.
+description: Use only when explicitly invoked by the human to review a branch diff against requirements and a plan with a concise per-file account of each substantive code change.
 ---
 
 # Branch Change Review

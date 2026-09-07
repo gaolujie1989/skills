@@ -1,6 +1,6 @@
 ---
 name: reorganizing-changes-and-review
-description: Use when AI-generated or accumulated changes were committed as one large commit, reset back into the working tree, and must be reorganized into logical commits plus an evidence-based review handoff for human approval.
+description: Use only when explicitly invoked by the human to reorganize a large commit returned to the working tree into logical commits and produce an evidence-based review handoff.
 ---
 
 # 重组大批代码改动并生成审核材料

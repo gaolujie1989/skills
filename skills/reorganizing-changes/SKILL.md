@@ -1,6 +1,6 @@
 ---
 name: reorganizing-changes
-description: Use when AI-generated or manually accumulated work was committed as one large commit, then returned to the working tree with git reset --mixed, and must be reconstructed into reviewable logical commits.
+description: Use only when explicitly invoked by the human to reconstruct a large commit returned to the working tree into reviewable logical commits.
 ---
 
 # 将大批未提交改动重组为逻辑提交

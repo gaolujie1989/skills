@@ -1,6 +1,6 @@
 ---
 name: superpowers-with-matt-tdd
-description: 当结合 Superpowers 与 Matt 的 tdd 技能编写 implementation plan，或执行已批准的工作时使用。
+description: Use only when explicitly invoked by the human to write implementation plans or execute approved work with Superpowers and Matt's tdd skill.
 ---
 
 # Superpowers 结合 Matt TDD

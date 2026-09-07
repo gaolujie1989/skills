@@ -1,6 +1,6 @@
 ---
 name: superpowers-with-matt-tdd
-description: Use when writing implementation plans or executing approved work with Superpowers and Matt's tdd skill.
+description: Use only when explicitly invoked by the human to write implementation plans or execute approved work with Superpowers and Matt's tdd skill.
 ---
 
 # Superpowers with Matt TDD

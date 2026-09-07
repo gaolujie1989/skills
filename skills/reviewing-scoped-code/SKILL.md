@@ -1,6 +1,6 @@
 ---
 name: reviewing-scoped-code
-description: Use when reviewing the current state and quality of a user-specified code scope such as modules, directories, files, classes, functions, APIs, services, or related implementation areas on the current branch.
+description: Use only when explicitly invoked by the human to review the current state and quality of a specified code scope on the current branch.
 ---
 
 # Reviewing Scoped Code

@@ -1,6 +1,6 @@
 ---
 name: branch-change-review
-description: Use when reviewing an implementation branch against its requirements and plan, and a human needs an evidence-based end-to-end explanation plus a complete per-file change ledger.
+description: Use only when explicitly invoked by the human to review an implementation branch against its requirements and plan with an evidence-based end-to-end explanation and complete per-file change ledger.
 ---
 
 # 分支变更评审

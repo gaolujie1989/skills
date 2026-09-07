@@ -1,6 +1,6 @@
 ---
 name: superpowers-with-checkpoint-brainstorming
-description: Use when brainstorming with Superpowers and routine choices or repeated clarification and section approvals interrupt design work.
+description: Use only when explicitly invoked by the human to brainstorm with Superpowers while reducing interruptions from routine choices, repeated clarification, and section approvals.
 ---
 
 # Superpowers with Checkpoint Brainstorming

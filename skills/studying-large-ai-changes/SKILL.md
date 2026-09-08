@@ -7,175 +7,100 @@ description: Use when an existing implementation is already complete and a large
 
 > `SKILL.md` is the sole normative source. `SKILL.zh.md` is a synchronized translation for human readers and must not define independent behavior.
 
-## Overview
+## Purpose and Boundaries
 
-Use this skill after implementation is substantially complete and before detailed code review.
+After implementation is substantially complete, reconstruct a mental model that lets an experienced developer understand the current design, major call flows, important functions, and state ownership before detailed code review.
 
-The goal is not to explain every changed line, summarize every file, or compare old and new code. The goal is to **compress a large implementation into a mental model that lets an experienced developer understand the current design, implementation structure, major call flows, important functions, state/data movement, and review boundaries without reading the entire change linearly**.
+Optimize for **comprehension, not coverage**. The result should identify the smallest useful reading route through the implementation.
 
-Optimize for **comprehension, not coverage**.
+- Describe the implementation that exists; do not redesign, refactor, or perform a full correctness/code-quality review.
+- Use current implemented code as the source of truth. Diff, commit range, branch, task files, and changed-file lists establish scope, not the document's narrative.
+- Read specs, designs, plans, tickets, and prior code for terminology or intent when useful. When they disagree with current code, describe the code's actual behavior.
+- Organize primarily by use case and responsibility, not by changed file or diff hunk. Compare old and new code only when explicitly requested.
+- Separate observation, inference, and uncertainty. Support inferred intent with evidence; mark intent as unclear when evidence is insufficient. Never invent design rationale.
 
-```text
-Large implementation
-        ↓
-Implementation reconstruction
-        ↓
-Mental model
-        ↓
-Component / use-case / function structure
-        ↓
-Targeted human reading
-```
-
-This is an **implementation comprehension / reconstruction skill**, not a Code Review skill and not a change-summary skill.
-
-## Source of Truth and Scope
-
-The **current implemented code** is the source of truth.
-
-Use the diff, commit range, branch, task files, or changed-file list only to discover scope. Do not organize the document around "before vs after" unless the user explicitly asks for comparison.
-
-Read enough surrounding final-state code to understand:
-
-- changed and directly affected components
-- entry points and public interfaces
-- callers and important dependencies
-- orchestration and stable internal stages
-- persistence and state mutation
-- transaction and concurrency boundaries
-- side-effect ownership
-- cross-component interaction
-- tests that reveal intended runtime behavior
-- repository patterns, `AGENTS.md`, and relevant project conventions
-
-Spec, Detailed Design, Plan, tickets, or prior implementation may be read for terminology and intent when useful, but they must not replace observation of the final implementation.
-
-When documentation and code disagree, describe what the code actually does. Do not silently rewrite the implementation into the architecture that "should" exist.
-
-## Core Rule: Reconstruct, Do Not Redesign
-
-Describe the implementation that exists.
-
-Prefer:
-
-```text
-Observed implementation:
-PurchaseOrderService.update() owns the transaction and item synchronization.
-```
-
-Avoid:
-
-```text
-PurchaseOrderService should own the transaction and item synchronization.
-```
-
-Do not refactor, redesign, or perform a full correctness review while reconstructing the implementation.
-
-If intent cannot be established from code, tests, or nearby documentation, mark it explicitly:
-
-```text
-Intent: inferred
-Evidence: call structure and tests
-```
-
-or:
-
-```text
-Intent: unclear from implementation
-```
-
-Never invent design rationale.
-
-## Analysis Strategy
-
-Do not read a large change linearly from the first diff hunk to the last.
+## Analysis Workflow
 
 Build the model from outside in:
 
-```text
-Scope
-  ↓
-Components
-  ↓
-Public entry points
-  ↓
-Use cases
-  ↓
-Major call chains
-  ↓
-Key functions
-  ↓
-Data / state / transaction / side effects
-  ↓
-Complex logic
-  ↓
-Recommended review route
-```
+1. **Establish scope.** Inspect the requested change and repository conventions, including applicable `AGENTS.md` instructions.
+2. **Map components and entry points.** Read changed and directly affected components, callers, public interfaces, and important dependencies in their final state.
+3. **Trace use cases.** Follow entry points through validation, orchestration, key internal stages, persistence, side effects, and results. Include behavior-changing branches and errors.
+4. **Explain ownership and complex logic.** Locate authoritative data, state mutation, transaction/concurrency boundaries, and cross-component effects. Use tests as behavioral evidence and identify test seams; do not substitute test structure for implementation structure.
+5. **Select the reading route.** Identify the symbols that explain most of the implementation, then write the study around that model.
 
-Classify implementation elements into three levels:
+Allocate detail by structural importance:
 
 | Level | Meaning | Treatment |
 | --- | --- | --- |
-| Structural | Defines responsibility, interface, orchestration, ownership, state flow, transaction, concurrency, side effect, or cross-component behavior | Explain in detail |
-| Supporting | Important to understand a structural path but not independently design-significant | Explain briefly where used |
-| Mechanical | Repetitive CRUD, mappings, trivial serializers, field declarations, obvious adapters, generated code, simple helpers | Summarize or omit |
+| Structural | Defines responsibility, interface, orchestration, business stages, state/transaction ownership, concurrency, side effects, or important algorithms | Explain in detail |
+| Supporting | Needed to understand a structural path but not independently design-significant | Explain briefly where used |
+| Mechanical | Repetitive CRUD, mappings, simple serializers/helpers, field declarations, obvious adapters, or generated code | Summarize or omit |
 
-The document must become smaller as the implementation becomes larger. Do not produce a second 8,000-line artifact to explain an 8,000-line implementation.
+As implementation size grows, increase the compression ratio rather than documenting each additional file or function. The study may grow with meaningful complexity, but reading it should cost substantially less than reading the implementation.
 
-## What Must Be Reconstructed
+## Reconstruction Requirements
 
-Include only applicable sections, but make every design-significant implementation decision visible.
+Cover each applicable area below. Give each fact a primary home and cross-reference it elsewhere rather than repeating it across sections.
 
-| Area | Reconstruct |
+| Area | Required content |
 | --- | --- |
-| Component responsibility | What each important component owns, does not own, depends on, and exposes |
-| Public interface | Actual important method/function names, parameters, parameter types, and return types where available |
-| Key internal stages | Private/internal methods that represent business stages, responsibility boundaries, stable abstractions, or important algorithms |
-| Method contract | Input, output, responsibility, important rules, state mutation, errors, side effects, and important non-responsibilities |
-| Use-case call flow | Entry point through validation/orchestration/persistence/side effects to result |
-| Data and state flow | Where important data originates, is transformed, becomes authoritative, and mutates persistent state |
-| Transaction / concurrency | Actual transaction boundaries, locking, idempotency mechanisms, retry assumptions, and concurrency-sensitive sections |
-| Side-effect ownership | Which component triggers external or cross-domain effects and under what conditions |
-| Complex logic | State transition, reconciliation, allocation, synchronization, batching, retry, ordering, or other non-trivial logic |
-| Test seam | Public/component boundaries where important behavior is verified |
-| Review route | Smallest ordered set of code that gives a reviewer the implementation mental model |
+| Component boundaries | Important components' responsibilities, non-responsibilities, dependencies, and exposed entry points |
+| Public interfaces | Actual important method/function names and signatures, including parameters, types, and return types where available; callers and represented use cases |
+| Function structure | Orchestration and internal methods that own meaningful business stages, validation/state transitions, persistence, algorithms, or integration; include shared functions with important fan-in/fan-out |
+| Method contracts | Inputs, outputs, responsibility, important rules/errors, state mutation, side effects, and important non-responsibilities |
+| Use-case flow | Traceable path from entry point to result, with meaningful branches, ordering, and cross-component interaction |
+| Data/state flow | Origins, normalization and validation boundaries, authoritative input/state, transformations, derived data, mutation ownership, and persistence timing |
+| Transaction/concurrency | Actual transaction and locking boundaries, idempotency mechanisms, retry assumptions, and concurrency-sensitive sections |
+| Side effects | Owner, trigger conditions, and execution timing, including whether effects occur inside or after a transaction |
+| Complex logic | Non-trivial state transitions, reconciliation, allocation, synchronization, batching, dependency ordering, retry, or aggregation |
+| Test seams | Public/component boundaries where tests verify important runtime and edge behavior |
+| Observed decisions | Structural choices visible in code, with explicit distinction between observation and inferred rationale |
+| Reading route | Smallest ordered set of symbols a reviewer should open, with locations and reasons |
 
-## Component Reconstruction
+State locking, idempotency, retry, and other behavioral assumptions only when supported by the implementation. An observed mechanism is not proof of correctness.
 
-For every important component, use a compact structure such as:
+### Representation and Function Cards
+
+Choose the representation that makes each relationship easiest to follow:
+
+- **Tables:** compact component maps and ownership inventories.
+- **Signatures:** important public interfaces; omit full function bodies.
+- **Call trees:** orchestration and key internal stages, excluding trivial helpers.
+- **Sequence diagrams:** ordering or cross-component interaction that a call tree cannot clearly express.
+- **Pseudocode:** complex logic that prose or call trees cannot adequately explain; do not mechanically translate ordinary loops or ORM syntax.
+- **Function Cards:** selected symbols a reviewer is likely to inspect, especially when their contracts are not already clear from the surrounding explanation.
+
+Use this compact Function Card structure:
 
 ```text
-## PurchaseOrderService
-
-Role:
-Orchestrates purchase-order mutation use cases.
-
-Owns:
-- update orchestration
-- state-transition validation
-- item synchronization
-- transaction boundary
-
-Does not own:
-- HTTP request parsing
-- response serialization
-
-Depends on:
-- PurchaseOrder
-- PurchaseOrderItem
-- InventoryService
-- AuditService
-
-Public entry points:
-- update(...)
-- cancel(...)
+### <Component.function>
+Location: <path + symbol, or verified path:line-range>
+Call context: <important callers and callees>
+Contract: <purpose, input/output, important rules and errors>
+State / effects: <mutations, transaction behavior, external effects when relevant>
+Read next: <related symbol and reason, when useful>
 ```
 
-Focus on current responsibility boundaries, not class-by-class inventory.
+Include important non-responsibilities in the contract when they clarify a boundary. Omit inapplicable fields and information already explained nearby. Do not create a card for every function.
 
-## Public Interfaces
+Use reliable line numbers when available; otherwise use path + symbol. Never fabricate locations.
 
-Show exact signatures for important entry points when practical:
+## Worked Example: Update Purchase Order
+
+The following is an illustrative study of one hypothetical implementation, not a prescribed architecture. In an actual study, derive names, signatures, rules, and transaction behavior from the code.
+
+### Mental Model and Components
+
+`PurchaseOrderService` orchestrates order mutations and owns transition validation, item reconciliation, and the transaction. The API layer parses requests and serializes responses. Inventory mutation and audit recording are invoked by the order use case.
+
+| Component | Owns | Important dependencies / entry points |
+| --- | --- | --- |
+| `PurchaseOrderViewSet` | HTTP entry and response handling | Serializer, service; `partial_update()` |
+| `PurchaseOrderUpdateSerializer` | Input-shape validation | Produces service input |
+| `PurchaseOrderService` | Business validation, order/item mutation, transaction orchestration | Order/item models, inventory and audit services; `update()` |
+
+### Public Interface
 
 ```python
 PurchaseOrderService.update(
@@ -186,306 +111,85 @@ PurchaseOrderService.update(
 ) -> PurchaseOrder
 ```
 
-For each important public entry point, state:
+Called by `PurchaseOrderViewSet.partial_update()` for `PATCH /purchase-orders/{id}`. It accepts validated update data and the operator, then returns the updated order. Transaction and side-effect behavior are shown in the flow below.
 
-- who calls it
-- what use case it represents
-- major input/output
-- transaction behavior
-- major state mutation
-- major side effects
-
-Do not reproduce full function bodies.
-
-## Function-Level Structure
-
-Reconstruct function structure only for structurally significant paths.
-
-A function is usually significant if it is one or more of:
-
-- a public use-case entry point
-- an orchestration method
-- a validation or state-transition owner
-- a transaction or locking boundary
-- a reconciliation/synchronization/allocation stage
-- a persistence boundary with meaningful behavior
-- a side-effect trigger
-- a cross-component integration point
-- a complex algorithm
-- a shared function with important fan-in or fan-out
-
-Prefer a compact call tree:
+### Use-Case Flow and Function Structure
 
 ```text
-PurchaseOrderService.update()
-
-├── _get_for_update()
-├── _validate_update()
-│   ├── _validate_status_transition()
-│   └── _validate_editable_fields()
-├── _apply_order_fields()
-├── _sync_items()
-│   ├── _classify_items()
-│   ├── _create_items()
-│   ├── _update_items()
-│   └── _remove_items()
-├── _apply_inventory_effects()
-└── _record_audit()
+PATCH /purchase-orders/{id}
+└── PurchaseOrderViewSet.partial_update()
+    ├── PurchaseOrderUpdateSerializer → PurchaseOrderUpdateData
+    └── PurchaseOrderService.update() [transaction.atomic]
+        ├── _get_for_update() [SELECT order FOR UPDATE]
+        ├── _validate_update()
+        │   ├── target status changed? → _validate_status_transition()
+        │   └── _validate_editable_fields()
+        ├── _apply_order_fields()
+        ├── _sync_items()
+        │   ├── _classify_items()
+        │   ├── _create_items()
+        │   ├── _update_items()
+        │   └── _remove_items()
+        ├── _apply_inventory_effects() [CONFIRMED → ORDERED only]
+        └── _record_audit()
+    → COMMIT → result
 ```
 
-Do not include trivial helpers merely because they exist.
+Validation runs against locked state. A rejected transition exits before mutation and produces a validation error. When target status is unchanged, normal field/item validation and updates still run.
 
-## Function Cards
+### Data, State, and Effects
 
-Create Function Cards for functions a reviewer is likely to open and inspect.
+| Data / effect | Ownership and semantics |
+| --- | --- |
+| Input | HTTP payload is validated and normalized by the serializer into `PurchaseOrderUpdateData` |
+| Order state | Service validates and mutates the locked order within the transaction |
+| Item collection | Incoming collection is the authoritative snapshot; `_sync_items()` persists the reconciliation |
+| Inventory | `_apply_inventory_effects()` triggers synchronous inventory mutation on `CONFIRMED → ORDERED`, inside the order transaction |
+| Audit | `_record_audit()` records the mutation inside the transaction |
 
-Use this compact form:
+Observed: inventory effects are guarded by a state transition; no separate idempotency key is observed. Retry behavior is unclear from the inspected implementation. The rationale for synchronous inventory effects is not explicit; coupling order and inventory mutation is a possible inference from the call structure.
+
+### Function Card and Complex Logic
 
 ```text
 ### PurchaseOrderService._sync_items()
-
-Location:
-`purchase/services/purchase_order.py` — `_sync_items`
-
-Called by:
-`PurchaseOrderService.update`
-
-Calls:
-`_classify_items`, `_create_items`, `_update_items`, `_remove_items`
-
-Purpose:
-Synchronizes persisted items against the complete incoming collection.
-
-Input:
-Locked order + incoming item collection.
-
-Output:
-None.
-
-Important rules:
-- incoming collection is authoritative
-- missing persisted items are removed
-- item identity is matched by ...
-
-State mutation:
-Creates, updates, and deletes PurchaseOrderItem rows.
-
-Side effects:
-None outside persistence.
-
-Why it matters:
-Owns item reconciliation semantics.
-
-Read next:
-`_classify_items` only if identity matching or duplicate handling needs inspection.
+Location: purchase/services/purchase_order.py — _sync_items
+Call context: update() → _sync_items() → _classify_items(),
+              _create_items(), _update_items(), _remove_items()
+Contract: Locked order + complete incoming item collection → None.
+          Match by item ID; missing persisted items are removed.
+          New items have no ID. Unknown or duplicate IDs are rejected
+          by _classify_items() before item writes.
+State / effects: Creates, updates, and deletes PurchaseOrderItem rows
+                 within the caller's transaction; no external effects.
+Read next: _classify_items() for identity validation and partitioning.
 ```
 
-Add `path:line-range` when line numbers are reliable; otherwise use path + symbol. Do not fabricate line numbers.
-
-## Use-Case and Call-Flow Reconstruction
-
-Organize the implementation primarily by **use case**, not by file.
-
-Example:
+Reconciliation semantics:
 
 ```text
-### Update Purchase Order
-
-PATCH /purchase-orders/{id}
-        ↓
-PurchaseOrderViewSet.partial_update()
-        ↓
-PurchaseOrderUpdateSerializer
-        ↓
-PurchaseOrderService.update()
-        ↓
-_get_for_update()
-        ↓
-_validate_update()
-        ↓
-_apply_order_fields()
-        ↓
-_sync_items()
-        ↓
-_apply_inventory_effects()
-        ↓
-_record_audit()
-        ↓
-COMMIT
+classify the complete input before writing:
+    no ID → create
+    known, unique ID → update
+    unknown or duplicate ID → validation error
+classify persisted items absent from incoming IDs as remove
+apply the create / update / remove groups
 ```
 
-Show meaningful branches when they change behavior:
+Relevant service tests provide evidence for deletion by omission, invalid identity rejection, and transition-triggered inventory behavior.
 
-```text
-target_status changed?
-├── no  → normal field/item update
-└── yes → validate transition
-          ↓
-          apply transition
-          ↓
-          trigger transition-owned side effects
-```
+### Recommended Review Route
 
-Use a sequence diagram only when ordering or cross-component interaction cannot be expressed clearly with a call tree.
+In an actual study, attach a verified location to each symbol below.
 
-## Data, State, Transaction, and Side Effects
+1. `PurchaseOrderService.update()` — orchestration and transaction boundary.
+2. `_validate_status_transition()` — business transition rules.
+3. `_sync_items()` and `_classify_items()` — snapshot and identity semantics.
+4. `_apply_inventory_effects()` — cross-domain effects and trigger conditions.
+5. `PurchaseOrderUpdateSerializer.validate()` — API-side input restrictions.
+6. Relevant service tests — expected edge behavior at the service boundary.
 
-For business-heavy implementations, explicitly reconstruct ownership.
-
-### Data / State Flow
-
-```text
-HTTP payload
-   ↓
-Serializer validated_data
-   ↓
-PurchaseOrderUpdateData
-   ↓
-PurchaseOrderService.update()
-   ├── order fields
-   ├── item collection
-   └── target status
-          ↓
-Persistent state
-```
-
-Identify:
-
-- authoritative input/state
-- normalization boundaries
-- validation ownership
-- state mutation ownership
-- derived data
-- persistence timing
-
-### Transaction / Concurrency
-
-```text
-PurchaseOrderService.update()
-└── transaction.atomic
-    ├── SELECT order FOR UPDATE
-    ├── validate against locked state
-    ├── mutate order
-    ├── synchronize items
-    ├── trigger in-transaction effects
-    └── audit
-```
-
-State actual locking, idempotency, retry, or concurrency assumptions only when supported by the implementation.
-
-### Side-Effect Ownership
-
-```text
-Inventory mutation
-
-Owner:
-PurchaseOrderService._apply_inventory_effects()
-
-Trigger:
-CONFIRMED → ORDERED
-
-Execution:
-Inside the order transaction.
-
-Idempotency:
-Guarded by state transition; no separate idempotency key observed.
-```
-
-Do not judge whether this is correct unless the user asks for review.
-
-## Complex Logic
-
-Use selective pseudocode only when normal prose or a call tree is insufficient.
-
-Good candidates:
-
-- state machines and transition guards
-- collection reconciliation
-- allocation/distribution
-- dependency ordering
-- synchronization
-- batching
-- retry/idempotency
-- non-trivial aggregation
-
-Example:
-
-```text
-existing_by_id = persisted items indexed by identity
-
-for incoming item:
-    if identity exists:
-        update existing item
-    else:
-        create item
-
-delete persisted items not present in incoming identities
-```
-
-Do not translate ordinary loops or ORM syntax into pseudocode.
-
-## Observed Implementation Decisions
-
-Record important structural choices that are visible in the final implementation.
-
-Examples:
-
-```text
-- The Service owns the transaction boundary.
-- Serializer performs input-shape validation; business transition validation remains in Service.
-- Incoming item collections are treated as authoritative snapshots.
-- Inventory effects are triggered synchronously from the order use case.
-```
-
-If rationale is not explicit, do not write "because". Separate observation from inference:
-
-```text
-Observed:
-Inventory effects execute inside the transaction.
-
-Possible rationale:
-Not explicit in code; may be intended to keep order and inventory mutation coupled.
-```
-
-Use inferred rationale sparingly.
-
-## Recommended Review Route
-
-End with an ordered reading route that minimizes human reading cost.
-
-Example:
-
-```text
-1. PurchaseOrderService.update()
-   Why: main orchestration and transaction boundary.
-
-2. _validate_status_transition()
-   Why: defines business state-transition rules.
-
-3. _sync_items()
-   Why: owns reconciliation semantics.
-
-4. _apply_inventory_effects()
-   Why: cross-domain side-effect boundary.
-
-5. PurchaseOrderUpdateSerializer.validate()
-   Why: defines API-side input restrictions.
-
-6. Relevant service tests
-   Why: confirms expected edge behavior.
-```
-
-The route should identify the smallest set of symbols that explains most of the implementation. Do not simply list all changed files.
-
-After the primary route, optionally include:
-
-```text
-Secondary reading:
-- mechanical serializers
-- admin/display changes
-- straightforward model fields
-- repetitive tests
-```
+Mechanical fields and response mappings can be deferred.
 
 ## Output
 
@@ -495,7 +199,7 @@ Save the study to:
 docs/superpowers/studies/YYYY-MM-DD-<feature>-implementation-study.md
 ```
 
-Use sections as needed; do not create empty sections.
+Use the following outline as needed. Omit empty/inapplicable sections and merge overlapping explanations. Within use cases, include relevant signatures, call trees, and selected Function Cards. Put shared ownership rules in the cross-cutting section.
 
 ```markdown
 # <Feature> Implementation Study
@@ -508,102 +212,30 @@ Use sections as needed; do not create empty sections.
 
 ## Use Cases
 
-## Key Components
+### <Use Case>
 
-### <Component>
-
-#### Responsibility
-
-#### Public Interfaces
-
-#### Function Structure
-
-#### Function Cards
-
-## Cross-Component Call Flows
-
-## Data / State Flow
-
-## Transaction / Concurrency
-
-## Side-Effect Ownership
+## Shared Data, State, Transactions, and Side Effects
 
 ## Complex Logic
 
-## Observed Implementation Decisions
-
-## Unclear Implementation Intent
+## Observed Decisions and Unclear Intent
 
 ## Recommended Review Route
-
-## Low-Priority / Mechanical Areas
 ```
 
-Prefer tables for compact inventories, signatures for interfaces, call trees for orchestration, Function Cards for important symbols, and selective pseudocode for genuinely complex logic.
+End with the ordered reading route: location + symbol + reason for each stop. Identify the smallest set explaining most of the implementation, not all changed files. Optionally list deferred mechanical areas after the primary route.
 
-## What Not to Do
+## Self-Review and Completion
 
-Do not:
+Before submitting, confirm:
 
-- explain every changed file
-- explain every function
-- narrate the diff hunk by hunk
-- center the document on old-vs-new comparison
-- produce a generic "what changed" summary
-- copy large code blocks
-- rewrite the implementation into an ideal architecture
-- infer requirements or rationale without evidence
-- perform a full bug/code-quality review
-- spend equal attention on mechanical and structural code
-- treat tests as the implementation structure; use them as behavioral evidence
-- hide uncertainty behind confident prose
-- create a document so detailed that reading it costs nearly as much as reading the code
+- The study describes current code, with observation, inference, and uncertainty clearly distinguished.
+- A developer can identify major responsibilities, public entry points, important internal stages, and end-to-end runtime call chains.
+- Authoritative data, state mutation, transaction/concurrency boundaries, side effects, and relevant errors are visible where applicable.
+- Signatures, symbols, locations, and behavioral claims are grounded in code; tests serve as evidence.
+- Mechanical details and repeated explanations are compressed; Function Cards and pseudocode add understanding rather than duplicate code.
+- The reading route materially reduces human reading cost and identifies which small portion of the code to inspect first, roughly 10–20% where practical.
 
-## Depth Test
+If these questions remain unanswered, deepen the structural explanation. If the document walks through every helper, serializer field, local variable, ordinary CRUD operation, repetitive test, or near-complete function body, compress it.
 
-The study is too shallow if, after reading it, an experienced developer still cannot answer:
-
-- What are the major components and responsibilities?
-- What are the public use-case entry points?
-- What are the main runtime call chains?
-- Which functions own the important business stages?
-- Where does important data become authoritative?
-- Where and how is persistent state mutated?
-- Where are transaction, locking, concurrency, and side effects owned?
-- Which 10–20% of the code should be read first?
-
-The study is too detailed if it explains:
-
-- every helper
-- every serializer field
-- ordinary CRUD
-- local variables
-- equivalent ORM expressions
-- obvious mapping code
-- repetitive tests
-- near-complete function bodies
-
-## Self-Review
-
-Before submitting the study, confirm:
-
-- the document describes the **current final implementation**, not the history of the change
-- diff/commit information was used for scope discovery, not as the narrative structure
-- important component responsibilities and boundaries are explicit
-- important public interfaces and function-level structure are accurate
-- major use-case call chains are traceable end to end
-- important data/state mutation, transaction, concurrency, and side-effect ownership are visible
-- Function Cards are limited to symbols that materially improve understanding
-- complex logic is explained selectively
-- observation, inference, and uncertainty are clearly distinguished
-- mechanical code has been compressed or omitted
-- the Recommended Review Route materially reduces how much code a human must read
-- the document is optimized for comprehension, not coverage
-
-## Completion
-
-After writing the Implementation Study, stop.
-
-Do not automatically begin Code Review, refactoring, or implementation changes.
-
-The user should first review the reconstructed mental model and decide which components or functions deserve detailed inspection.
+After writing the Implementation Study, stop. Do not automatically begin Code Review, refactoring, or implementation changes. The user first reviews the mental model and decides where detailed inspection is needed.
